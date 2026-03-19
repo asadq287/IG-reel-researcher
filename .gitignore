@@ -1,0 +1,7 @@
+node_modules/
+videos/
+*.json
+!package.json
+!tsconfig.json
+*.html
+.DS_Store

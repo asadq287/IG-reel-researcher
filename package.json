@@ -1,0 +1,23 @@
+{
+  "name": "instagram-reels-content-research",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Content research via Instagram Reels — collect, download, transcribe, score, and report.",
+  "scripts": {
+    "collect:feed": "npx tsx scripts/collect-feed.ts",
+    "collect:hashtag": "npx tsx scripts/collect-research.ts --hashtag",
+    "collect:username": "npx tsx scripts/collect-research.ts --usernames",
+    "collect:keyword": "npx tsx scripts/collect-research.ts --keyword",
+    "download": "npx tsx scripts/download-reels.ts",
+    "transcribe": "npx tsx scripts/transcribe-reels.ts",
+    "report": "npx tsx scripts/generate-report.ts",
+    "cleanup": "npx tsx scripts/cleanup-videos.ts"
+  },
+  "dependencies": {
+    "playwright": "^1.40.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0"
+  }
+}
