@@ -22,18 +22,12 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const date = new Date().toISOString().slice(0, 10);
 const inputFile = process.argv[2] || join(__dirname, `downloaded-${date}.json`);
 
-// Resolve ffmpeg — prefer system install, fall back to npm package
+// Resolve ffmpeg — prefer system install, fall back to bare command
 let ffmpegPath: string;
 try {
   ffmpegPath = execFileSync('which', ['ffmpeg'], { encoding: 'utf-8' }).trim();
 } catch {
-  try {
-    const { createRequire } = await import('module');
-    const require = createRequire(import.meta.url);
-    ffmpegPath = require('ffmpeg-static');
-  } catch {
-    ffmpegPath = 'ffmpeg';
-  }
+  ffmpegPath = 'ffmpeg';
 }
 
 // whisper-cpp paths
