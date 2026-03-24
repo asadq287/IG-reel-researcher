@@ -6,13 +6,14 @@ Detailed instructions for Step 4 of the pipeline — scoring and classifying tra
 
 ### 1. Load Transcribed Reels
 
-Read `instagram/content-research/transcribed-YYYY-MM-DD.json`. Structure:
+Read `instagram/content-research/analyzed-YYYY-MM-DD.json` (or `transcribed-YYYY-MM-DD.json` if visual analysis was skipped). Structure:
 
 ```json
 {
   "collected_at": "2024-01-15T10:30:00Z",
   "downloaded_at": "2024-01-15T10:45:00Z",
   "transcribed_at": "2024-01-15T11:00:00Z",
+  "analyzed_at": "2024-01-15T11:15:00Z",
   "total": 20,
   "reels": [
     {
@@ -30,7 +31,15 @@ Read `instagram/content-research/transcribed-YYYY-MM-DD.json`. Structure:
       "thumbnail": "https://...",
       "video_path": "/path/to/video.mp4",
       "transcript": "Hey everyone, today I want to show you...",
-      "talking": true
+      "talking": true,
+      "visual_analysis": {
+        "scenes": "Man speaks to camera in home office. Cut to screen recording of Rightmove. Text overlay: '5 steps to find BMV deals'.",
+        "text_on_screen_ocr": ["5 Steps to Find BMV Deals", "Step 1: Set up alerts", "Follow for more"],
+        "visual_format": "talking-head-with-text",
+        "key_visual_elements": ["face-to-camera", "text-overlay", "screen-recording"],
+        "production_quality": "medium — decent lighting, basic text overlays, screen recording",
+        "summary": "Creator explains a 5-step process for finding below market value property deals. Uses a mix of talking to camera and screen recordings of Rightmove to demonstrate the process."
+      }
     }
   ]
 }
@@ -138,14 +147,34 @@ For reels where `talking` is false, also include:
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `visual_description` | string | Brief description of what's shown visually (since there's no transcript) |
-| `text_on_screen` | string | Any text that appears on screen (from caption or inferred from context) |
+| `visual_description` | string | Brief description of what's shown visually. **When `visual_analysis` is present**, populate from `visual_analysis.summary` and `visual_analysis.scenes`. Otherwise infer from caption. |
+| `text_on_screen` | string | Any text that appears on screen. **When `visual_analysis` is present**, populate from `visual_analysis.text_on_screen_ocr` (join with " \| "). Otherwise infer from caption. |
 
 ### 3. Using Transcripts vs Captions
 
 **IMPORTANT:** If a `transcript` field is present and non-empty, use it as the **PRIMARY evidence** for scoring and classification. Many high-value reels have generic captions but specific spoken content. The transcript reveals what creators actually SAY, which is often more detailed and niche-specific than the caption alone. Weight transcript content heavily alongside caption and engagement data.
 
 **IMPORTANT:** For non-talking reels, rely on caption, engagement metrics, reel type, and visual cues. Do NOT penalize non-talking reels — they are often lower effort and highly replicable, making them valuable content research targets.
+
+### 3.5. Using Visual Analysis Data
+
+When a reel has a `visual_analysis` field (from Gemini video analysis), use it as follows:
+
+**Primary source for visual fields:**
+- Use `visual_analysis.summary` and `visual_analysis.scenes` as the **primary source** for `visual_description` — do not guess or infer from captions alone
+- Use `visual_analysis.text_on_screen_ocr` as the **primary source** for `text_on_screen` — this is actual OCR, not inference
+- Cross-reference `visual_analysis.text_on_screen_ocr` with transcript and caption for comprehensive understanding
+
+**Informing classifications:**
+- Use `visual_analysis.visual_format` to inform `reel_types` classification (e.g., "text-on-screen" format → `text-on-screen` reel type, "talking-head-with-text" → likely `tips-and-tricks` or `tutorial`)
+- Use `visual_analysis.production_quality` to inform `effort_level` (e.g., "high — professional lighting, smooth transitions" → `effort_level: "high"`)
+- Use `visual_analysis.key_visual_elements` to identify production techniques (e.g., "green-screen", "split-screen", "transitions" indicate higher effort)
+
+**For non-talking reels:** `visual_analysis` is now the **PRIMARY content signal**. Use it to understand what the reel actually shows, rather than guessing from captions. The `text_on_screen_ocr` field reveals the actual on-screen text content that drives engagement.
+
+**For talking reels:** `visual_analysis` supplements the transcript with visual context — use it to understand the visual production style and any on-screen text that complements the spoken content.
+
+**When `visual_analysis` is absent:** Fall back to the previous behavior (infer from captions and transcript).
 
 ### 4. Identify Trend Patterns
 

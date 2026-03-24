@@ -47,6 +47,15 @@ interface ScoredReel {
   key_topics: string[];
   visual_description?: string;
   text_on_screen?: string;
+  visual_analysis?: {
+    scenes: string;
+    text_on_screen_ocr: string[];
+    visual_format: string;
+    key_visual_elements: string[];
+    production_quality: string;
+    summary: string;
+  };
+  visual_analysis_error?: string;
 }
 
 function escapeHtml(s: string): string {
@@ -168,8 +177,14 @@ function generateReport() {
         ${r.why_it_works ? `<div class="card-field"><span class="field-label">Why it works:</span> ${escapeHtml(r.why_it_works)}</div>` : ''}
         ${r.steal_this ? `<div class="steal-this-box"><span class="field-label">Steal this:</span> ${escapeHtml(r.steal_this)}</div>` : ''}
 
+        ${r.visual_analysis ? `
+        <div class="card-visual-analysis">
+          <div class="card-field"><span class="field-label">Visual:</span> ${escapeHtml(r.visual_analysis.summary)}</div>
+          ${r.visual_analysis.text_on_screen_ocr?.length ? `<div class="card-field"><span class="field-label">Text on screen:</span> ${escapeHtml(r.visual_analysis.text_on_screen_ocr.join(' | '))}</div>` : ''}
+          <span class="type-pill" style="color:#ce93d8;">format: ${escapeHtml(r.visual_analysis.visual_format)}</span>
+        </div>` : `
         ${!r.talking && r.visual_description ? `<div class="card-field"><span class="field-label">Visual:</span> ${escapeHtml(r.visual_description)}</div>` : ''}
-        ${!r.talking && r.text_on_screen ? `<div class="card-field"><span class="field-label">Text on screen:</span> ${escapeHtml(r.text_on_screen)}</div>` : ''}
+        ${!r.talking && r.text_on_screen ? `<div class="card-field"><span class="field-label">Text on screen:</span> ${escapeHtml(r.text_on_screen)}</div>` : ''}`}
 
         ${r.transcript ? `<div class="card-transcript"><span class="field-label">Transcript:</span> ${escapeHtml(r.transcript.slice(0, 250))}${r.transcript.length > 250 ? '...' : ''}</div>` : ''}
 

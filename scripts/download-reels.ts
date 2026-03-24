@@ -68,6 +68,8 @@ async function downloadReelWithMetadata(
     // Use --print-json to get metadata while downloading
     const { stdout } = await execFileAsync('yt-dlp', [
       '--cookies-from-browser', `chrome:${COOKIES_DIR}`,
+      '-f', 'worst*[ext=mp4]/worst*',
+      '-S', '+size,+res',
       '-o', outputPath,
       '--merge-output-format', 'mp4',
       '--no-warnings',

@@ -10,10 +10,12 @@
     "collect:keyword": "npx tsx scripts/collect-research.ts --keyword",
     "download": "npx tsx scripts/download-reels.ts",
     "transcribe": "npx tsx scripts/transcribe-reels.ts",
+    "analyze": "npx tsx scripts/analyze-visuals.ts",
     "report": "npx tsx scripts/generate-report.ts",
     "cleanup": "npx tsx scripts/cleanup-videos.ts"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.21.0",
     "playwright": "^1.40.0"
   },
   "devDependencies": {

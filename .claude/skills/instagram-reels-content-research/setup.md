@@ -21,7 +21,18 @@ npm install
 npx playwright install chromium
 ```
 
-## 3. Create Dedicated Chrome Profile
+## 3. Get a Gemini API Key
+
+1. Go to https://aistudio.google.com/apikey
+2. Create an API key (free — 15 RPM, 1M tokens/day)
+3. Copy the example env file and paste your key:
+```bash
+cp .env.example .env
+# Edit .env and replace "your-key-here" with your actual key
+```
+The `.env` file is gitignored so your key stays local.
+
+## 4. Create Dedicated Chrome Profile
 
 All browser automation uses a SEPARATE Chrome profile — your personal Chrome stays untouched.
 
@@ -36,7 +47,7 @@ All browser automation uses a SEPARATE Chrome profile — your personal Chrome s
 A bare Chrome window opens. Log into Instagram. Done.
 Session cookies persist — you only log in once.
 
-## 4. Download Whisper Model
+## 5. Download Whisper Model
 
 Auto-downloads on first run, or download manually:
 
@@ -52,7 +63,7 @@ curl -L -o ~/.local/share/whisper-cpp/ggml-base.en.bin \
 
 Start with `base.en`. Upgrade to `small.en` only if quality is poor.
 
-## 5. Create Output Directories
+## 6. Create Output Directories
 
 ```bash
 mkdir -p instagram/content-research/videos

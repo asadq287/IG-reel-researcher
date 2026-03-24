@@ -17,7 +17,8 @@ Before first run, complete the one-time setup in [setup.md](setup.md).
 - Playwright installed (`npm install playwright && npx playwright install chromium`) — only needed for Feed and Keyword modes
 - Dedicated Chrome profile at `~/.claude-browser` logged into Instagram
 - yt-dlp + ffmpeg + whisper-cpp installed via Homebrew
-- No paid APIs — everything runs locally
+- `GEMINI_API_KEY` environment variable set (free tier — get at https://aistudio.google.com/apikey)
+- No paid APIs — everything runs locally or on free tiers
 
 ## Three Modes
 
@@ -132,11 +133,25 @@ If transcript is empty or very short (<5 chars), mark `talking: false`. Otherwis
 - Input: `downloaded-YYYY-MM-DD.json`
 - Output: `transcribed-YYYY-MM-DD.json`
 
+### Step 3.5: Analyze Visuals (Gemini)
+
+```bash
+npx tsx scripts/analyze-visuals.ts [transcribed-file]
+```
+
+Uploads each reel's MP4 to Google Gemini 2.0 Flash for native video analysis. Gemini processes the full temporal video stream — understands motion, transitions, on-screen text (OCR), and scene changes.
+
+- Input: `transcribed-YYYY-MM-DD.json`
+- Output: `analyzed-YYYY-MM-DD.json`
+- Adds `visual_analysis` field with: scene descriptions, OCR text, format classification, key visual elements, production quality, and summary
+- Rate-limited to stay under Gemini free tier (15 RPM)
+- Requires `GEMINI_API_KEY` env var
+
 ### Step 4: Score & Classify (Claude — runs inside Claude Code)
 
 **This step runs inside Claude Code itself.** No script needed.
 
-1. Read `transcribed-YYYY-MM-DD.json`
+1. Read `analyzed-YYYY-MM-DD.json` (or `transcribed-YYYY-MM-DD.json` if visual analysis was skipped)
 2. For each reel, read the metadata + transcript and produce a full analysis
 3. Save as `scored-YYYY-MM-DD.json`
 
@@ -199,6 +214,7 @@ Checks total video files in `videos/`. If > 50 files, deletes oldest date folder
 | `downloaded-YYYY-MM-DD.json` | Download status + metadata + video paths |
 | `videos/YYYY-MM-DD/*.mp4` | Downloaded reel video files |
 | `transcribed-YYYY-MM-DD.json` | Reels with speech transcripts |
+| `analyzed-YYYY-MM-DD.json` | Reels with Gemini visual analysis |
 | `scored-YYYY-MM-DD.json` | Full scoring + classification (source of truth) |
 | `report-YYYY-MM-DD.html` | Visual content research report |
 
@@ -220,5 +236,6 @@ All TypeScript source files are in `scripts/` and documented in [scripts.md](scr
 - `scripts/collect-research.ts` — Research / Username / Hashtag mode collection
 - `scripts/download-reels.ts` — yt-dlp download + metadata
 - `scripts/transcribe-reels.ts` — ffmpeg + whisper.cpp transcription
+- `scripts/analyze-visuals.ts` — Gemini video analysis (scenes, OCR, format)
 - `scripts/generate-report.ts` — HTML report generator
 - `scripts/cleanup-videos.ts` — Video folder cleanup

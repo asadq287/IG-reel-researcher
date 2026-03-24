@@ -94,6 +94,26 @@ npx tsx instagram/content-research/transcribe-reels.ts [downloaded-file]
 
 ---
 
+## instagram/content-research/analyze-visuals.ts
+
+Analyzes downloaded reel videos using Google Gemini 2.0 Flash for native video understanding (scenes, OCR, format classification).
+
+```bash
+npx tsx scripts/analyze-visuals.ts [transcribed-file]
+```
+
+- Input: `instagram/content-research/transcribed-YYYY-MM-DD.json`
+- Output: `instagram/content-research/analyzed-YYYY-MM-DD.json`
+- Uploads each reel's MP4 to Gemini for visual analysis
+- Adds `visual_analysis` field with: scenes, text_on_screen_ocr, visual_format, key_visual_elements, production_quality, summary
+- Rate-limited at 4.5s between calls (stays under 15 RPM free tier)
+- Retries once on upload failure, then skips
+- Reels with no `video_path` are skipped (same pattern as transcribe-reels.ts)
+
+**Dependencies:** `npm install @google/generative-ai` + `GEMINI_API_KEY` env var
+
+---
+
 ## instagram/content-research/generate-report.ts
 
 Renders scored reels into a visual HTML content research report.

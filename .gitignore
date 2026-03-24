@@ -5,3 +5,4 @@ videos/
 !tsconfig.json
 *.html
 .DS_Store
+.env
